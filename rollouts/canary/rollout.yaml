@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1 # apps/v1 대신 argoproj.io/v1alpha1을 사용
+kind: Rollout # Deployment 대신 Rollout을 사용
+metadata:
+  name: rollout-canary
+spec:
+  replicas: 8
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: rollout-canary
+  template:
+    metadata:
+      labels:
+        app: rollout-canary
+    spec:
+      containers:
+      - name: rollouts-demo
+        image: argoproj/rollouts-demo:blue
+        #image: argoproj/rollouts-demo:red
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+  strategy:
+    canary:
+      maxSurge: "25%"
+      maxUnavailable: 0
+      steps:
+      - setWeight: 25
+      - pause: {} # Auto Promotion 옵션 비활성화
